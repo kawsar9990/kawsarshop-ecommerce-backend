@@ -17,6 +17,7 @@ router.post('/update-dob', userController.updateProfileDOB);
 router.post('/update-gender', userController.updateProfileGender);
 router.post('/update-password', userController.updatePassword)
 router.post('/update-newsletter', userController.updateNewsletter)
+router.post('/delete-account', authController.deleteAccount)
 
 module.exports = router;
 

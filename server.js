@@ -6,6 +6,9 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
+const OrderRoutes = require('./routes/orderRoutes');
+const wishlistRoutes = require('./routes/wishlistRoutes');
+const cartRoutes = require('./routes/cartRoutes')
 
 const app = express();
 
@@ -37,9 +40,11 @@ app.get('/', (req,res) => {
     res.send("KawsarShop API is Ready")
 });
 
-
+app.use('/api/vouchers', OrderRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api', productRoutes);
+app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/cart', cartRoutes);
 
 
 
