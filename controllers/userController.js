@@ -2,7 +2,6 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 
 
-
 exports.updateProfilePic = async (req, res) => {
 try{
 
@@ -32,8 +31,6 @@ catch(err){
  res.status(500).json({ message: "Server Error!" });   
 }
 }
-
-
 
 
 

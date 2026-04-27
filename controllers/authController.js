@@ -1,11 +1,12 @@
+require('dotenv').config();
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const svgCaptcha = require('svg-captcha');
-
+const Cart = require('../models/Cart');
+const Wishlist = require('../models/Wishlist');
+const Address = require('../models/Address');
 const JWT_SECRET = process.env.JWT_SECRET || "kawsar_secret_key_123";
-
-
 
 
 exports.register = async (req, res) => {
@@ -120,6 +121,7 @@ res.status(500).json({ message: "Login failed", error: err.message });
 }
 
 
+
 exports.socialLogin = async (req, res) => {
   try {
     const { name, email, image, provider } = req.body;
@@ -162,7 +164,7 @@ const newUser = new User({
   dob: ""
 });
 
-    const savedUser = await newUser.save();
+  const savedUser = await newUser.save();
    const token = jwt.sign({ id: savedUser._id }, JWT_SECRET, { expiresIn: '7d' });
    res.status(201).json({
      message: "Registration successful!",
@@ -254,12 +256,21 @@ exports.deleteAccount = async (req, res) => {
     if (!userId) {
       return res.status(400).json({ message: "User ID is required!" });
     }
+  
 
-   const deletedUser = await User.findByIdAndDelete(userId);
-   
-   if (!deletedUser) {
+    const user = await User.findById(userId);
+    if (!user) {
       return res.status(404).json({ message: "User not found!" });
     }
+
+
+    await Promise.all([
+      Cart.deleteMany({ userId: userId }),
+      Wishlist.deleteMany({ userId: userId }),
+      Address.deleteMany({ userId: userId })
+    ]);
+
+    await User.findByIdAndDelete(userId);
 
     res.status(200).json({
       success: true,

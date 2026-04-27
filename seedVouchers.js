@@ -7,26 +7,58 @@ const vouchers = [
     code: "KAWSARDEVELOPER99", 
     value: 30, 
     type: "percentage", 
-    minAmount: 100 
+    minAmount: 100,
+    usageLimit: 50,
+    expiryDate: new Date("2026-12-31")
   },
   { 
     code: "HEYBABY99", 
     value: 30, 
     type: "percentage", 
-    minAmount: 100 
+    minAmount: 100,
+    usageLimit: 70,
+    expiryDate: new Date("2026-12-31")
   },
   { 
     code: "KAWSARSHOP899", 
     value: 30, 
     type: "percentage", 
-    minAmount: 100 
+    minAmount: 100,
+    usageLimit: 90,
+    expiryDate: new Date("2026-12-31") 
   },
   { 
     code: "TOMISLAM2032007", 
     value: 30, 
     type: "percentage", 
-    minAmount: 100 
-  }    
+    minAmount: 100,
+    usageLimit: 60,
+    expiryDate: new Date("2026-12-31")
+  },
+   { 
+    code: "SUNNYLEAON95", 
+    value: 30, 
+    type: "percentage", 
+    minAmount: 100,
+    usageLimit: 60,
+    expiryDate: new Date("2026-12-31")
+  },
+  { 
+    code: "JONYSHINGH89", 
+    value: 30, 
+    type: "percentage", 
+    minAmount: 100,
+    usageLimit: 65,
+    expiryDate: new Date("2026-12-31")
+  },
+  { 
+    code: "MIAKHOLIFA753", 
+    value: 30, 
+    type: "percentage", 
+    minAmount: 100,
+    usageLimit: 85,
+    expiryDate: new Date("2026-12-31")
+  },   
 ];
 
 const seedDB = async () => {

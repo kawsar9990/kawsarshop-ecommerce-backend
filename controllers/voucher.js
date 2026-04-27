@@ -2,7 +2,7 @@ const Voucher = require('../models/Voucher');
 
 exports.verifyVoucher = async (req, res) => {
 try{
-const { code, subtotal } = req.body;
+const { code, subtotal, userId } = req.body;
 
 const voucher = await Voucher.findOne({ 
       code: code.toUpperCase(), 
@@ -16,8 +16,21 @@ if (!voucher) {
  });
 }
 
+if (voucher.expiryDate && new Date() > new Date(voucher.expiryDate)){
+return res.status(400).json({ success: false, message: "This voucher has expired!" });  
+}
+
+if (voucher.usedBy.length >= voucher.usageLimit){
+return res.status(400).json({ success: false, message: "Voucher usage limit reached!" });  
+}
+
+if (userId && voucher.usedBy.includes(userId)) {
+      return res.status(400).json({ success: false, message: "You have already used this voucher!" });
+}
+
+
 if(subtotal < voucher.minAmount){
-return res.status(400).json({ 
+return res.status(200).json({ 
   success: false, 
   message: `This voucher requires a minimum order of ${voucher.minAmount} TK` 
 });    
