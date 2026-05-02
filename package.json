@@ -22,6 +22,7 @@
     "mongoose": "^9.2.1",
     "nodemailer": "^8.0.2",
     "resend": "^6.12.0",
+    "sslcommerz-lts": "^1.2.0",
     "svg-captcha": "^1.4.0"
   }
 }

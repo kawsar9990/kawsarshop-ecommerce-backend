@@ -10,7 +10,7 @@ const OrderRoutes = require('./routes/orderRoutes');
 const wishlistRoutes = require('./routes/wishlistRoutes');
 const cartRoutes = require('./routes/cartRoutes')
 const addressRoutes = require('./routes/addressRoutes');
-
+const orderRoutes = require('./routes/ordersRoutes');
 
 
 const app = express();
@@ -35,7 +35,6 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json());
 
-
 const mongoURI = process.env.MONGODB_URL;
 mongoose.connect(mongoURI)
 
@@ -49,7 +48,7 @@ app.use('/api', productRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/addresses', addressRoutes);
-
+app.use('/api/orders', orderRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
