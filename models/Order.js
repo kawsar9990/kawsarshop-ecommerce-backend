@@ -24,6 +24,7 @@ orderItems: [
        oldprice: { type: Number, default: 0 },
        title: String,
        discountPercent: String,
+       isReviewed: { type: Boolean, default: false },
        product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
     }
 ],
@@ -35,12 +36,14 @@ shippingAddress: {
     city: { type: String, required: true },
     country: { type: String, required: true },
     phone: { type: String, required: true },
+    addressType: { type: String },
 },
 
 paymentMethod: { type: String, required: true, default: 'Cash on Delivery' },
 paymentResult: { id: String, status: String },
 itemsPrice: { type: Number, required: true, default: 0.0 },
 taxPrice: { type: Number, required: true, default: 0.0 },
+shippingMethodName: { type: String, required: true },
 shippingPrice: { type: Number, required: true, default: 0.0 },
 totalAmount: { type: Number, required: true, default: 0.0 },
 isPaid: { type: Boolean, required: true, default: false },

@@ -3,6 +3,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
+// const dns = require('dns')
+
+// dns.setServers(["1.1.1.1", "8.8.8.8"])
 
 const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
@@ -11,7 +14,7 @@ const wishlistRoutes = require('./routes/wishlistRoutes');
 const cartRoutes = require('./routes/cartRoutes')
 const addressRoutes = require('./routes/addressRoutes');
 const OrderRoutes = require('./routes/ordersRoutes')
-
+const reviewRoutes = require('./routes/reviewRoutes');
 
 const app = express();
 
@@ -49,6 +52,7 @@ app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/addresses', addressRoutes);
 app.use('/api/orders', OrderRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

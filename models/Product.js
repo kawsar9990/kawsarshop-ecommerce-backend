@@ -16,6 +16,18 @@ const productData = new mongoose.Schema({
     discountPercent: String,
     ratestar: { type: Number, default: 0 },
     review: String,
+    reviewsMutual: [
+        {
+            userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+            username: {type: String},
+            userImage: { type: String },
+            rating: { type: Number, required: true },
+            comment: {type: String, required: true },
+            orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },
+            createdAt: { type: Date, default: Date.now }
+        }
+    ],
+    reviewCount: { type: Number, default: 0 },
     size: [String],
     stock: { type: Number, default: 50 },
     isLatest: {type: Boolean, default: false},
