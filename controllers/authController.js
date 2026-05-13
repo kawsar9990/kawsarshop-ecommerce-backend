@@ -63,10 +63,10 @@ const newUser = new User({
 const savedUser = await newUser.save();
 const token = jwt.sign(
     { 
-        id: user._id || savedUser._id, 
-        username: user.username || savedUser.username, 
-        email: user.email || savedUser.email, 
-        profilePic: user.profilePic || user.image || savedUser.profilePic || "" 
+        id: savedUser._id, 
+        username: savedUser.username, 
+        email: savedUser.email, 
+        profilePic: savedUser.profilePic || "" 
     }, 
     JWT_SECRET, 
     { expiresIn: '7d' }
@@ -110,10 +110,10 @@ return res.status(400).json({ message: "Invalid Password!" });
 }
 const token = jwt.sign(
     { 
-        id: user._id || savedUser._id, 
-        username: user.username || savedUser.username, 
-        email: user.email || savedUser.email, 
-        profilePic: user.profilePic || user.image || savedUser.profilePic || "" 
+        id: user._id, 
+        username: user.username, 
+        email: user.email, 
+        profilePic: user.profilePic || user.image || "" 
     }, 
     JWT_SECRET, 
     { expiresIn: '7d' }
@@ -148,16 +148,11 @@ exports.socialLogin = async (req, res) => {
     let user = await User.findOne({ email });
 
 if (user) {
-  const token = jwt.sign(
-    { 
-        id: user._id || savedUser._id, 
-        username: user.username || savedUser.username, 
-        email: user.email || savedUser.email, 
-        profilePic: user.profilePic || user.image || savedUser.profilePic || "" 
-    }, 
-    JWT_SECRET, 
-    { expiresIn: '7d' }
-  );
+const token = jwt.sign(
+{ id: user._id, username: user.username, email: user.email, profilePic: user.profilePic || user.image || "" },
+JWT_SECRET,
+{ expiresIn: '7d' }
+);
   return res.status(200).json({
     message: "Login successful!",
     token,
