@@ -1,11 +1,15 @@
 const Order = require('../models/Order');
 const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 const Product = require('../models/Product');
 const JWT_SECRET = process.env.JWT_SECRET || "kawsar_secret_key_123";
 
+
+
+
 exports.createOrder = async (req, res) => {
 try{
-const { orderItems, shippingAddress, paymentMethod, itemsPrice, shippingPrice, totalAmount, shippingMethodName } = req.body;
+const { orderItems, shippingAddress, paymentMethod, itemsPrice, shippingPrice, totalAmount, shippingMethodName, walletUsed  } = req.body;
 
 const authHeader = req.headers.authorization;
 if (!authHeader || !authHeader.startsWith('Bearer ')){
@@ -20,6 +24,17 @@ decoded = jwt.verify(token, JWT_SECRET);
 return res.status(401).json({ message: "Invalid or Expired Token!" });
 }
 
+if(walletUsed && walletUsed > 0){
+ const user = await User.findById(decoded.id);
+ if (!user) return res.status(404).json({ message: "User not found!" });
+  if(user.walletBalance < walletUsed) {
+    return res.status(400).json({ message: "Insufficient wallet balance!" });
+  }
+  await User.findByIdAndUpdate(decoded.id, { $inc: { walletBalance: -walletUsed } }); 
+}
+
+
+
 const order = new Order({
 userId: decoded.id,
 orderItems,
@@ -28,6 +43,7 @@ paymentMethod,
 shippingMethodName,
 itemsPrice,
 shippingPrice,
+walletUsed: walletUsed || 0,
 totalAmount,
 orderStatus: "Pending"
 });
@@ -115,6 +131,8 @@ catch(error){
 }
 
 
+
+
 exports.getOrdersByUserId = async (req, res) => {
 try{
 const authHeader = req.headers.authorization;
@@ -133,5 +151,45 @@ res.status(200).json({ success: true, orders });
 }
 catch(error){
  res.status(500).json({ message: error.message }); 
+}
+}
+
+
+
+
+
+
+exports.trackOrderPublic = async (req, res) => {
+try{
+const { id } = req.params;
+const { phone } = req.query;
+
+if (!id || !phone) {
+return res.status(400).json({ message: "Order ID and Phone number are required!" });
+}
+
+const cleanPhone = phone.replace(/[^\d]/g, '');
+if (cleanPhone.length < 10) {
+return res.status(400).json({ message: "Please provide a valid phone number!" });
+};
+
+
+const phoneLast10Digits = cleanPhone.slice(-10);
+const phoneRegex = new RegExp(phoneLast10Digits + '$');
+
+
+const order = await Order.findOne({
+  _id: id,
+  'shippingAddress.phone': { $regex: phoneRegex }
+});
+
+
+if (!order) {
+    return res.status(404).json({ message: "Invalid Order ID or Phone Number!" });
+}
+res.status(200).json({ success: true, order });
+}
+catch(error){
+ res.status(500).json({ message: "Invalid Order ID format!" }); 
 }
 }

@@ -25,6 +25,11 @@ orderItems: [
        title: String,
        discountPercent: String,
        isReviewed: { type: Boolean, default: false },
+       returnStatus: {
+        type: String,
+        enum: ['Not Applied', 'Return Requested', 'Refunded', 'Cancelled'],
+        default: 'Not Applied'
+       },
        product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
     }
 ],
@@ -45,6 +50,7 @@ itemsPrice: { type: Number, required: true, default: 0.0 },
 taxPrice: { type: Number, required: true, default: 0.0 },
 shippingMethodName: { type: String, required: true },
 shippingPrice: { type: Number, required: true, default: 0.0 },
+walletUsed: { type: Number, default: 0 },
 totalAmount: { type: Number, required: true, default: 0.0 },
 isPaid: { type: Boolean, required: true, default: false },
 paidAt: { type: Date },

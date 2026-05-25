@@ -14,7 +14,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: ""
     },
-    provider: {type: String, enum: ['local', 'google'], default: 'local'}
+    provider: {type: String, enum: ['local', 'google'], default: 'local'},
+    walletBalance: {
+       type: Number,
+       default: 0 
+    }
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

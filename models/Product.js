@@ -23,6 +23,7 @@ const productData = new mongoose.Schema({
             userImage: { type: String },
             rating: { type: Number, required: true },
             comment: {type: String, required: true },
+            images: [String],
             orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },
             createdAt: { type: Date, default: Date.now }
         }

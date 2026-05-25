@@ -58,7 +58,8 @@ const newUser = new User({
     dob,
     newsletter,
     password: hashedPassword,
-    provider: 'local'
+    provider: 'local',
+    walletBalance: 0
 });
 const savedUser = await newUser.save();
 const token = jwt.sign(
@@ -66,7 +67,8 @@ const token = jwt.sign(
         id: savedUser._id, 
         username: savedUser.username, 
         email: savedUser.email, 
-        profilePic: savedUser.profilePic || "" 
+        profilePic: savedUser.profilePic || "",
+        walletBalance: savedUser.walletBalance || 0
     }, 
     JWT_SECRET, 
     { expiresIn: '7d' }
@@ -83,6 +85,7 @@ res.status(201).json({
         gender: savedUser.gender || "",
         profilePic: "",
         newsletter: savedUser.newsletter,
+        walletBalance: savedUser.walletBalance || 0
     } 
 });
 }
@@ -113,7 +116,8 @@ const token = jwt.sign(
         id: user._id, 
         username: user.username, 
         email: user.email, 
-        profilePic: user.profilePic || user.image || "" 
+        profilePic: user.profilePic || user.image || "",
+        walletBalance: user.walletBalance || 0 
     }, 
     JWT_SECRET, 
     { expiresIn: '7d' }
@@ -129,7 +133,8 @@ res.status(200).json({
       dob: user.dob || {},
       gender: user.gender || "",
       newsletter: user.newsletter,
-      profilePic: user.profilePic || user.image || ""
+      profilePic: user.profilePic || user.image || "",
+      walletBalance: user.walletBalance || 0
     }
 });
 }
@@ -149,7 +154,11 @@ exports.socialLogin = async (req, res) => {
 
 if (user) {
 const token = jwt.sign(
-{ id: user._id, username: user.username, email: user.email, profilePic: user.profilePic || user.image || "" },
+{ id: user._id, 
+  username: user.username, 
+  email: user.email, profilePic: 
+  user.profilePic || user.image || "",
+   walletBalance: user.walletBalance},
 JWT_SECRET,
 { expiresIn: '7d' }
 );
@@ -164,7 +173,8 @@ JWT_SECRET,
       gender: user.gender || "not specified", 
       dob: user.dob || "",           
       newsletter: user.newsletter,  
-      profilePic: user.profilePic || user.image || image || ""
+      profilePic: user.profilePic || user.image || image || "",
+      walletBalance: user.walletBalance
     }
   });
 }
@@ -183,7 +193,8 @@ const newUser = new User({
   isVerified: true,
   gender: "not specified",
   newsletter: false,
-  dob: ""
+  dob: "",
+  walletBalance: 0
 });
 
   const savedUser = await newUser.save();
@@ -192,7 +203,8 @@ const newUser = new User({
         id: savedUser._id, 
         username: savedUser.username, 
         email: savedUser.email, 
-        profilePic: savedUser.profilePic || savedUser.image || "" 
+        profilePic: savedUser.profilePic || savedUser.image || "",
+        walletBalance: savedUser.walletBalance || 0 
     }, 
     JWT_SECRET, 
     { expiresIn: '7d' }
@@ -208,7 +220,8 @@ const newUser = new User({
     gender: savedUser.gender || "not specified",
     dob: savedUser.dob || "",        
     newsletter: savedUser.newsletter,   
-    profilePic: savedUser.profilePic || savedUser.image || ""
+    profilePic: savedUser.profilePic || savedUser.image || "",
+    walletBalance: savedUser.walletBalance || 0
      }
    });
   } catch (err) {

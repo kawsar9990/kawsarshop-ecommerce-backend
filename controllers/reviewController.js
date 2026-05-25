@@ -11,7 +11,12 @@ if (!authHeader) return res.status(401).json({ message: "No token provided" });
 
 const token = authHeader.split(' ')[1];
 const decoded = jwt.verify(token, JWT_SECRET);
-const { productId, orderId, rating, comment } = req.body;
+const { productId, orderId, rating, comment, images } = req.body;
+
+
+if (images && Array.isArray(images) && images.length > 5) {
+return res.status(400).json({ message: "You can upload a maximum of 5 images!" });
+}
 
 const currentUser = await User.findById(decoded.id);
 if (!currentUser) return res.status(404).json({ message: "User not found!" });
@@ -40,6 +45,7 @@ const newReview = {
     email: currentUser.email || "", 
     rating: Number(rating),
     comment: comment,
+    images: images || [],
     orderId: orderId,
     createdAt: new Date()
 };

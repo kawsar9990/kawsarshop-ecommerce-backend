@@ -10,6 +10,7 @@ userId: {
 appliedVoucher: { type: String, default: null },
 voucherValue: { type: Number, default: 0 }, 
 voucherType: { type: String, default: null },
+walletBalance: { type: Number, default: 0 },
 items: [
 {
  _id: String,
