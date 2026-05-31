@@ -9,6 +9,8 @@ const Address = require('../models/Address');
 const JWT_SECRET = process.env.JWT_SECRET || "kawsar_secret_key_123";
 
 
+
+
 exports.register = async (req, res) => {
 try{
 const { email, password, confirmPassword, firstname, lastname, phone, gender, dob, newsletter, captchaToken } = req.body;
@@ -59,7 +61,10 @@ const newUser = new User({
     newsletter,
     password: hashedPassword,
     provider: 'local',
-    walletBalance: 0
+    walletBalance: 0,
+    isPremium: false,     
+    premiumPlan: 'none',
+    premiumExpiresAt: null
 });
 const savedUser = await newUser.save();
 const token = jwt.sign(
@@ -68,7 +73,9 @@ const token = jwt.sign(
         username: savedUser.username, 
         email: savedUser.email, 
         profilePic: savedUser.profilePic || "",
-        walletBalance: savedUser.walletBalance || 0
+        walletBalance: savedUser.walletBalance || 0,
+        isPremium: savedUser.isPremium,
+        premiumPlan: savedUser.premiumPlan
     }, 
     JWT_SECRET, 
     { expiresIn: '7d' }
@@ -85,7 +92,10 @@ res.status(201).json({
         gender: savedUser.gender || "",
         profilePic: "",
         newsletter: savedUser.newsletter,
-        walletBalance: savedUser.walletBalance || 0
+        walletBalance: savedUser.walletBalance || 0,
+        isPremium: savedUser.isPremium,
+        premiumPlan: savedUser.premiumPlan,
+        premiumExpiresAt: savedUser.premiumExpiresAt
     } 
 });
 }
@@ -111,13 +121,24 @@ const isMatch = await bcrypt.compare(password, user.password);
 if (!isMatch) {
 return res.status(400).json({ message: "Invalid Password!" });
 }
+
+if (user.isPremium && user.premiumExpiresAt && new Date() > new Date(user.premiumExpiresAt)) {
+  user.isPremium = false;
+  user.premiumPlan = 'none';
+  user.premiumExpiresAt = null;
+  await user.save();
+}
+
+
 const token = jwt.sign(
     { 
         id: user._id, 
         username: user.username, 
         email: user.email, 
         profilePic: user.profilePic || user.image || "",
-        walletBalance: user.walletBalance || 0 
+        walletBalance: user.walletBalance || 0,
+        isPremium: user.isPremium,
+        premiumPlan: user.premiumPlan 
     }, 
     JWT_SECRET, 
     { expiresIn: '7d' }
@@ -134,7 +155,10 @@ res.status(200).json({
       gender: user.gender || "",
       newsletter: user.newsletter,
       profilePic: user.profilePic || user.image || "",
-      walletBalance: user.walletBalance || 0
+      walletBalance: user.walletBalance || 0,
+      isPremium: user.isPremium,
+      premiumPlan: user.premiumPlan,
+      premiumExpiresAt: user.premiumExpiresAt
     }
 });
 }
@@ -153,12 +177,23 @@ exports.socialLogin = async (req, res) => {
     let user = await User.findOne({ email });
 
 if (user) {
+
+if (user.isPremium && user.premiumExpiresAt && new Date() > new Date(user.premiumExpiresAt)) {
+  user.isPremium = false;
+  user.premiumPlan = 'none';
+  user.premiumExpiresAt = null;
+  await user.save();
+}
+
 const token = jwt.sign(
 { id: user._id, 
   username: user.username, 
   email: user.email, profilePic: 
   user.profilePic || user.image || "",
-   walletBalance: user.walletBalance},
+  walletBalance: user.walletBalance,
+  isPremium: user.isPremium,
+  premiumPlan: user.premiumPlan
+},
 JWT_SECRET,
 { expiresIn: '7d' }
 );
@@ -174,7 +209,10 @@ JWT_SECRET,
       dob: user.dob || "",           
       newsletter: user.newsletter,  
       profilePic: user.profilePic || user.image || image || "",
-      walletBalance: user.walletBalance
+      walletBalance: user.walletBalance,
+      isPremium: user.isPremium,
+      premiumPlan: user.premiumPlan,
+      premiumExpiresAt: user.premiumExpiresAt
     }
   });
 }
@@ -194,7 +232,10 @@ const newUser = new User({
   gender: "not specified",
   newsletter: false,
   dob: "",
-  walletBalance: 0
+  walletBalance: 0,
+  isPremium: false,
+  premiumPlan: 'none',
+  premiumExpiresAt: null
 });
 
   const savedUser = await newUser.save();
@@ -204,7 +245,9 @@ const newUser = new User({
         username: savedUser.username, 
         email: savedUser.email, 
         profilePic: savedUser.profilePic || savedUser.image || "",
-        walletBalance: savedUser.walletBalance || 0 
+        walletBalance: savedUser.walletBalance || 0,
+        isPremium: savedUser.isPremium,
+        premiumPlan: savedUser.premiumPlan 
     }, 
     JWT_SECRET, 
     { expiresIn: '7d' }
@@ -221,7 +264,10 @@ const newUser = new User({
     dob: savedUser.dob || "",        
     newsletter: savedUser.newsletter,   
     profilePic: savedUser.profilePic || savedUser.image || "",
-    walletBalance: savedUser.walletBalance || 0
+    walletBalance: savedUser.walletBalance || 0,
+    isPremium: savedUser.isPremium,
+    premiumPlan: savedUser.premiumPlan,
+    premiumExpiresAt: savedUser.premiumExpiresAt
      }
    });
   } catch (err) {
@@ -323,4 +369,121 @@ exports.deleteAccount = async (req, res) => {
   }catch(err){
     res.status(500).json({ message: "Server Error! Could not delete account." });
   }
+};
+
+
+
+
+
+
+exports.activateMembership = async (req, res) =>{
+try{
+const { userId, plan } = req.body;
+
+if (!userId || !plan) {
+return res.status(400).json({ message: "User ID and Plan type are required!" });
+}
+
+if (!['trial', 'one-year'].includes(plan)) {
+return res.status(400).json({ message: "Invalid plan type!" });
+}
+
+let expiryDate = new Date();
+if(plan === 'trial'){
+  expiryDate.setDate(expiryDate.getDate() + 7);
+} else if(plan === 'one-year'){
+  expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+}
+
+const updatedUser = await User.findByIdAndUpdate(
+  userId,
+  {
+    isPremium: true,
+    premiumPlan: plan,
+    premiumExpiresAt: expiryDate 
+  },
+  { new: true }
+).select("-password");
+
+if (!updatedUser) {
+  return res.status(404).json({ message: "User not found!" });
+};
+
+const token = jwt.sign(
+  { 
+      id: updatedUser._id, 
+      username: updatedUser.username, 
+      email: updatedUser.email, 
+      profilePic: updatedUser.profilePic || updatedUser.image || "",
+      walletBalance: updatedUser.walletBalance || 0,
+      isPremium: updatedUser.isPremium,         
+      premiumPlan: updatedUser.premiumPlan
+  }, 
+  JWT_SECRET, 
+  { expiresIn: '7d' }
+);
+
+res.status(200).json({
+  success: true,
+  message: `Membership activated successfully for ${plan === 'trial' ? '7 Days Trial' : 'One-Year Plan'}!`,
+  token,
+  user: updatedUser
+});
+}
+catch(error){
+res.status(500).json({ message: "Server Error! Could not activate membership.", error: err.message });  
+}
+};
+
+
+
+
+
+exports.cancelMembership = async (req, res) =>{
+try{
+const { userId } = req.body;
+
+if (!userId) {
+return res.status(400).json({ message: "User ID is required!" });
+}
+
+const updatedUser = await User.findByIdAndUpdate(
+  userId,
+  {
+    isPremium: false,
+    premiumPlan: 'none',
+    premiumExpiresAt: null
+  },
+  {new: true}
+).select("-password");
+
+if (!updatedUser) {
+return res.status(404).json({ message: "User not found!" });
+}
+
+const token = jwt.sign(
+{
+id: updatedUser._id,
+username: updatedUser.username,
+email: updatedUser.email,
+profilePic: updatedUser.profilePic || updatedUser.image || "",
+walletBalance: updatedUser.walletBalance || 0,
+isPremium: false,
+premiumPlan: 'none'  
+},
+JWT_SECRET,
+{expiresIn: '7d'}
+);
+
+res.status(200).json({
+  success: true,
+  message: "Membership cancelled successfully!",
+  token,
+  user: updatedUser
+});
+
+}
+catch(error){
+  res.status(500).json({ message: "Server Error!", error: error.message });
+}
 }

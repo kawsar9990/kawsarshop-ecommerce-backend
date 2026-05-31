@@ -18,6 +18,19 @@ const userSchema = new mongoose.Schema({
     walletBalance: {
        type: Number,
        default: 0 
+    },
+    isPremium: {
+       type: Boolean,
+       default: false
+    },
+    premiumPlan: {
+       type: String,
+       enum: ['none', 'trial', 'one-year'],
+       default: 'none'
+    },
+    premiumExpiresAt: {
+       type: Date,
+       default: null
     }
 }, { timestamps: true });
 

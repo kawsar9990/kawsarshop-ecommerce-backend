@@ -42,8 +42,11 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json());
 
+
+
 const mongoURI = process.env.MONGODB_URL;
 mongoose.connect(mongoURI)
+
 
 
 app.get('/', (req,res) => {
